@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <title>Fake News📰 Detection System</title>
+  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+ <div class="login">
+	<h1>Fake News 📰  Detector</h1>
+
+    <form action="/predict" method="POST">
+    	<textarea  name="message" rows="6" cols="50" required="required" style="font-size: 18pt"></textarea>
+		<br> </br>
+        <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+
+        <div class="results">
+
+	{% if prediction == ['Fake']%}
+		<h2 style="color:red;">This is Fake ⚠️ News 📰 </h2>
+
+	{% elif prediction == ['True']%}
+		<h2 style="color:green;"><b>This is  Real <span style="font-family: Arial Unicode MS, Lucida Grande">
+			&#x2705;
+		</span> News 📰</b></h2>
+	{% endif %}
+		</div>
+
+    </form>
+
+</div>
+</body>
+</html>
