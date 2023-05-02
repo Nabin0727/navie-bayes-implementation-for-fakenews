@@ -101,25 +101,25 @@ news_dataset
 news_dataset.describe()
 
 
-# In[73]:
+
 
 
 news_dataset.info()
 
 
-# In[74]:
+
 
 
 final_data = news_dataset.dropna()
 
 
-# In[75]:
+
 
 
 final_data.isnull().sum()
 
 
-# In[76]:
+
 
 
 # Removing the date 
@@ -140,7 +140,6 @@ final_data.head()
 
 #First lets convert our data into lower case 
 final_data['text'] = final_data['text'].apply(lambda x: x.lower())
-#final_data['title'] = final_data['title'].apply(lambda x: x.lower())
 final_data.head()
 
 

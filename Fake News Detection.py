@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 # Including Libraries
 # necessary imports
 import pandas as pd
@@ -22,19 +19,12 @@ import numpy as np
 import seaborn as sb
 import pickle
 
-
-# In[2]:
-
-
 #We will import the file through the pandas 
 TrueNews = pd.read_csv("True.csv")
 FakeNews = pd.read_csv("Fake.csv")
 #Let's check our data
 print(TrueNews.head(5))
 #print(FakeNews.head(5))
-
-
-# In[3]:
 
 
 #Checking shape for both files
