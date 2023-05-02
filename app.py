@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[45]:
+# In[4]:
 
 
 from flask import Flask, render_template, request, jsonify
@@ -14,19 +14,52 @@ from nltk.corpus import stopwords
 import string
 
 
-# In[46]:
+# In[5]:
 
 
 app = Flask(__name__)
 
 
-# In[47]:
+# In[6]:
+
+
+# Load model
+with open('naive_bayes_model.pkl', 'rb') as file:
+    model_train = pickle.load(file)
+
+
+# In[7]:
+
+
+# Load the vecrotizer 
+with open('tfidf_vectorizer.pkl', 'rb') as file:
+    model_vectorizer = pickle.load(file)
+
+
+# In[8]:
+
+
+translator = str.maketrans('', '', string.punctuation)
+
+
+# In[9]:
+
+
+def preprocess(article):
+    article = article.lower()
+    article = article.translate(translator)
+    stop_words = stopwords.words('english')
+    article = ' '.join([word for word in article.split() if word not in (stop_words)])
+    return article
+
+
+# In[10]:
 
 
 def predict_fake_news(X, p_fake, p_real, fake_word_probs, real_word_probs, alpha=1):
-    y_pred = []
     num_fake = 0
     num_real = 0
+    y_pred = []
     for i in range(X.shape[0]):
         article = X[i, :]
         p_real_article = 1.0
@@ -45,6 +78,9 @@ def predict_fake_news(X, p_fake, p_real, fake_word_probs, real_word_probs, alpha
         # Predict the class label of the news article
         if p_fake_article * p_fake > p_real_article * p_real:
             y_pred.append(1)
+            print(p_fake_article * p_fake)
+            print((p_real_article * p_real))
+            print(1)
         else:
             y_pred.append(0)
         
@@ -53,62 +89,10 @@ def predict_fake_news(X, p_fake, p_real, fake_word_probs, real_word_probs, alpha
         else:
             num_real += 1
     
-    return np.array(y_pred)
+    return y_pred
 
 
-# In[48]:
-
-
-# Load model
-with open('naive_bayes_model.pkl', 'rb') as file:
-    model_train = pickle.load(file)
-
-
-# In[ ]:
-
-
-
-
-
-# In[49]:
-
-
-# Load the vecrotizer 
-with open('tfidf_vectorizer.pkl', 'rb') as file:
-    model_vectorizer = pickle.load(file)
-
-
-# In[50]:
-
-
-translator = str.maketrans('', '', string.punctuation)
-
-
-# In[61]:
-
-
-def fake_news_det(news):
-    predictions = []
-    for item in news:
-        input_data = item.lower()
-        input_data = input_data.translate(translator)
-        stop_words = stopwords.words('english')
-        
-        input_data = ' '.join([word for word in input_data.split() if word not in (stop_words)])
-        
-        vectorized_input_data = model_vectorizer.transform([input_data])
-        
-        # Predict the class label of the new data
-        prediction = predict_fake_news(vectorized_input_data, model_train["p_fake"], model_train["p_real"], 
-                            model_train["fake_word_probs"], model_train["real_word_probs"])
-        #prediction = model.predict(vectorized_input_data)
-        
-        predictions.append(prediction)
-    
-    return predictions
-
-
-# In[63]:
+# In[11]:
 
 
 #Flask routing 
@@ -118,50 +102,33 @@ def home():
     return render_template("Home.html")
 
 
-# In[68]:
+# In[12]:
 
 
 @app.route('/predict', methods = ['POST','GET'])
-def predict_fake():
+def predict_news():
+    pred = []
     if request.method == 'POST':
         news = request.form['message']
-        pred = fake_news_det(news)[0]
+        news = preprocess(news)
+        vectorized_article = model_vectorizer.transform([news])
+        prediction = predict_fake_news(vectorized_article, model_train["p_fake"], model_train["p_real"], 
+                                model_train["fake_word_probs"], model_train["real_word_probs"])[0]
+        pred.append(prediction)
         print(pred)
-        print(str(pred))
-        return render_template('Home.html', prediction = pred, news=news)
+
+        # Evaluate the performance of the classifier
+        
+        return render_template('Home.html', prediction=pred)
     else:
         return render_template('Home.html')
 
 
-# In[69]:
+# In[13]:
 
 
 if __name__ == '__main__':
-    app.run(debug = True, host = '0.0.0.0', port='8098')
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+    app.run(debug = True, host = '0.0.0.0', port='9202')
 
 
 # In[ ]:
